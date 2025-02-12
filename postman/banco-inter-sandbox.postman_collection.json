@@ -1,0 +1,223 @@
+{
+  "info": {
+    "_postman_id": "123e4567-e89b-12d3-a456-426614174001",
+    "name": "Banco Inter Sandbox",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "Obter Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "pm.environment.set(\"access_token\", jsonData.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "{{client_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "boleto-cobranca.read boleto-cobranca.write",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/oauth/v2/token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "oauth",
+                "v2",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Boletos",
+      "item": [
+        {
+          "name": "Criar Boleto",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"seuNumero\": \"123456\",\n    \"valorNominal\": 100.00,\n    \"dataVencimento\": \"2024-03-12\",\n    \"numDiasAgenda\": 60,\n    \"pagador\": {\n        \"cpfCnpj\": \"12345678909\",\n        \"tipoPessoa\": \"FISICA\",\n        \"nome\": \"João da Silva\",\n        \"endereco\": \"Rua Teste, 123\",\n        \"cidade\": \"São Paulo\",\n        \"uf\": \"SP\",\n        \"cep\": \"01234567\"\n    },\n    \"mensagem\": {\n        \"linha1\": \"Pagamento referente à fatura\",\n        \"linha2\": \"Vencimento em 12/03/2024\",\n        \"linha3\": \"\",\n        \"linha4\": \"\",\n        \"linha5\": \"\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cobranca/v2/boletos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cobranca",
+                "v2",
+                "boletos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar Boleto",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cobranca/v2/boletos/:nossoNumero",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cobranca",
+                "v2",
+                "boletos",
+                ":nossoNumero"
+              ],
+              "variable": [
+                {
+                  "key": "nossoNumero",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Baixar PDF",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cobranca/v2/boletos/:nossoNumero/pdf",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cobranca",
+                "v2",
+                "boletos",
+                ":nossoNumero",
+                "pdf"
+              ],
+              "variable": [
+                {
+                  "key": "nossoNumero",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar Boleto",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cobranca/v2/boletos/:nossoNumero/cancelar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cobranca",
+                "v2",
+                "boletos",
+                ":nossoNumero",
+                "cancelar"
+              ],
+              "variable": [
+                {
+                  "key": "nossoNumero",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
