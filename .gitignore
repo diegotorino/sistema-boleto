@@ -17,3 +17,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/storage/app/certificates
+/storage/app/boletos
+
