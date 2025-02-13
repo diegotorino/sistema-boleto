@@ -31,11 +31,8 @@ return [
     ],
 
     'inter' => [
-        'url' => env('INTER_API_URL', 'https://cdpj.partners.bancointer.com.br'),
+        'base_url' => env('INTER_API_URL', 'https://cdpj.partners.bancointer.com.br'),
         'client_id' => env('INTER_CLIENT_ID'),
         'client_secret' => env('INTER_CLIENT_SECRET'),
-        'cert_path' => 'app/private/certificados/Sandbox_InterAPI_Certificado.pem',
-        'key_path' => 'app/private/certificados/Sandbox_InterAPI_Chave.pem',
-        'ca_path' => 'app/private/certificados/lets-encrypt-r3.pem',
     ],
 ];

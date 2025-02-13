@@ -4,28 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Cliente;
 
 class Boleto extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'cliente',
-        'cpf_cnpj',
-        'email',
+        'cliente_id',
         'valor',
         'vencimento',
+        'descricao',
         'status',
         'nosso_numero',
         'linha_digitavel',
-        'url_pdf',
-        'mensagem',
+        'codigo_barras',
+        'url_pdf'
     ];
 
     protected $casts = [
         'valor' => 'decimal:2',
         'vencimento' => 'date',
     ];
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 
     public function getStatusColorAttribute()
     {

@@ -1,3 +1,118 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    /* Estilos base para todos os inputs */
+    .form-input {
+        @apply block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm;
+        @apply dark:text-gray-300;
+        background-color: white;
+    }
+    
+    .form-input:not(:focus) {
+        @apply dark:bg-[#1a1a1a];
+    }
+
+    /* Estilos de foco para inputs */
+    .form-input:focus {
+        --tw-ring-color: #9333ea !important;
+        --tw-ring-opacity: 0.5 !important;
+        border-color: #9333ea !important;
+        @apply dark:bg-[#1a1a1a];
+    }
+
+    /* Estilos para inputs com ícones */
+    .input-with-icon {
+        @apply pl-10;
+    }
+
+    /* Estilos para o container do ícone */
+    .input-icon {
+        @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400;
+    }
+
+    /* Estilos para checkbox */
+    .form-checkbox {
+        @apply rounded border-gray-300 dark:border-gray-600 shadow-sm;
+    }
+
+    .form-checkbox:checked {
+        background-color: #9333ea !important;
+        border-color: #9333ea !important;
+    }
+
+    .form-checkbox:focus {
+        --tw-ring-color: #9333ea !important;
+        --tw-ring-opacity: 0.5 !important;
+    }
+
+    /* Estilos para select */
+    .form-select {
+        @apply block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm;
+        @apply dark:text-gray-300;
+        background-color: white;
+    }
+
+    .form-select:not(:focus) {
+        @apply dark:bg-[#1a1a1a];
+    }
+
+    .form-select:focus {
+        --tw-ring-color: #9333ea !important;
+        --tw-ring-opacity: 0.5 !important;
+        border-color: #9333ea !important;
+        @apply dark:bg-[#1a1a1a];
+    }
+
+    /* Estilos para textarea */
+    .form-textarea {
+        @apply block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm;
+        @apply dark:text-gray-300;
+        background-color: white;
+    }
+
+    .form-textarea:not(:focus) {
+        @apply dark:bg-[#1a1a1a];
+    }
+
+    .form-textarea:focus {
+        --tw-ring-color: #9333ea !important;
+        --tw-ring-opacity: 0.5 !important;
+        border-color: #9333ea !important;
+        @apply dark:bg-[#1a1a1a];
+    }
+
+    /* Estilos para labels */
+    .form-label {
+        @apply block text-sm font-medium text-white mb-1;
+    }
+
+    /* Estilos para botões */
+    .btn-primary {
+        background-color: #9333ea !important;
+        @apply inline-flex items-center px-4 py-2 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150;
+    }
+
+    .btn-primary:hover {
+        background-color: #7e22ce !important;
+    }
+
+    .btn-primary:focus {
+        background-color: #7e22ce !important;
+        @apply outline-none ring-2 ring-offset-2;
+        --tw-ring-color: #9333ea !important;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150;
+    }
+
+    .btn-success {
+        @apply inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150;
+    }
+}

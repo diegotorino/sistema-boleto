@@ -1,3 +1,14 @@
-@props(['disabled' => false])
+@props(['disabled' => false, 'icon' => null])
 
-<input @disabled($disabled) {{ $attributes->merge(['class' => 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm']) }}>
+<div class="relative">
+    @if($icon)
+    <div class="input-icon">
+        <i class="fas fa-{{ $icon }}"></i>
+    </div>
+    @endif
+    
+    <input {{ $disabled ? 'disabled' : '' }} 
+           {!! $attributes->merge([
+               'class' => 'form-input block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 ' . ($icon ? 'input-with-icon' : '')
+           ]) !!}>
+</div>
