@@ -1,123 +1,162 @@
-@extends('layouts.dashboard')
+<x-app-layout>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-secondary-dark overflow-hidden shadow-sm rounded-lg">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+                            <i class="fas fa-file-invoice-dollar mr-2"></i> Detalhes do Boleto
+                        </h2>
+                        <div class="flex space-x-3">
+                            @if($boleto->pdf_path)
+                                <a href="{{ route('boletos.pdf', $boleto) }}" 
+                                   target="_blank"
+                                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                                    <i class="fas fa-file-pdf mr-2"></i> Visualizar PDF
+                                </a>
+                            @endif
+                            
+                            <a href="{{ route('boletos.index') }}" 
+                               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                                <i class="fas fa-arrow-left mr-2"></i> Voltar
+                            </a>
+                        </div>
+                    </div>
 
-@section('header', 'Detalhes do Boleto')
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Informações do Boleto -->
+                        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                <i class="fas fa-info-circle mr-2"></i> Informações do Boleto
+                            </h3>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Número</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->seu_numero }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Valor</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">R$ {{ number_format($boleto->valor_nominal, 2, ',', '.') }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Data de Vencimento</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($boleto->data_vencimento)->format('d/m/Y') }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                                    <dd class="mt-1">
+                                        @switch($boleto->status)
+                                            @case('EMITIDO')
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    Emitido
+                                                </span>
+                                                @break
+                                            @case('PAGO')
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Pago
+                                                </span>
+                                                @break
+                                            @case('CANCELADO')
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Cancelado
+                                                </span>
+                                                @break
+                                            @default
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                    {{ $boleto->status }}
+                                                </span>
+                                        @endswitch
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
 
-@section('content')
-    <!-- Card Principal -->
-    <div class="bg-white rounded-lg shadow-sm">
-        <div class="p-6">
-            <!-- Status do Boleto -->
-            <div class="mb-6 flex items-center justify-between">
-                <div class="flex items-center">
-                    <span class="px-3 py-1 text-sm font-semibold rounded-full 
-                        {{ $boleto->status === 'pago' ? 'bg-green-100 text-green-800' : 
-                           ($boleto->status === 'vencido' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
-                        {{ ucfirst($boleto->status) }}
-                    </span>
-                </div>
-                <div class="flex space-x-3">
-                    <a href="#" onclick="window.open('{{ route('boletos.pdf', $boleto) }}', '_blank')" 
-                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                        Baixar PDF
-                    </a>
-                    <a href="{{ route('boletos.index') }}" 
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                        </svg>
-                        Voltar
-                    </a>
-                </div>
-            </div>
+                        <!-- Informações do Pagador -->
+                        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                <i class="fas fa-user mr-2"></i> Informações do Pagador
+                            </h3>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Nome</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_nome }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tipo</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_tipo === 'FISICA' ? 'Pessoa Física' : 'Pessoa Jurídica' }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">CPF/CNPJ</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_cpf_cnpj }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">E-mail</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_email ?: 'Não informado' }}</dd>
+                                </div>
+                            </dl>
+                        </div>
 
-            <!-- Informações do Boleto -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Informações Financeiras -->
-                <div class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informações Financeiras</h3>
-                    <dl class="grid grid-cols-1 gap-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Valor</dt>
-                            <dd class="mt-1 text-lg font-semibold text-gray-900">R$ {{ number_format($boleto->valor, 2, ',', '.') }}</dd>
+                        <!-- Endereço do Pagador -->
+                        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg md:col-span-2">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                <i class="fas fa-map-marker-alt mr-2"></i> Endereço do Pagador
+                            </h3>
+                            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Logradouro</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_endereco }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Número</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_numero }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Complemento</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_complemento ?: 'Não informado' }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Bairro</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_bairro }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cidade</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_cidade }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">UF</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_uf }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">CEP</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $boleto->pagador_cep }}</dd>
+                                </div>
+                            </dl>
                         </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Data de Vencimento</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $boleto->vencimento->format('d/m/Y') }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Data de Emissão</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $boleto->created_at->format('d/m/Y H:i') }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Linha Digitável</dt>
-                            <dd class="mt-1 text-sm font-mono text-gray-900 break-all">{{ $boleto->linha_digitavel }}</dd>
-                        </div>
-                    </dl>
-                </div>
+                    </div>
 
-                <!-- Informações do Pagador -->
-                <div class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informações do Pagador</h3>
-                    <dl class="grid grid-cols-1 gap-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Nome</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $boleto->pagador_nome }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">CPF/CNPJ</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $boleto->pagador_cpf_cnpj }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Endereço</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                {{ $boleto->pagador_endereco }}<br>
-                                {{ $boleto->pagador_cidade }}/{{ $boleto->pagador_estado }}<br>
-                                CEP: {{ $boleto->pagador_cep }}
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </div>
+                    @if($boleto->status === 'EMITIDO')
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <form action="{{ route('boletos.pagar', $boleto) }}" method="POST" class="inline-block">
+                                @csrf
+                                <button type="submit" 
+                                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center"
+                                        onclick="return confirm('Tem certeza que deseja simular o pagamento deste boleto?')">
+                                    <i class="fas fa-money-bill-wave mr-2"></i> Simular Pagamento
+                                </button>
+                            </form>
 
-            <!-- Histórico -->
-            <div class="mt-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Histórico</h3>
-                <div class="bg-gray-50 rounded-lg overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($boleto->historico as $evento)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $evento->created_at->format('d/m/Y H:i') }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $evento->tipo }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                        {{ $evento->detalhes }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                        Nenhum evento registrado
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            <form action="{{ route('boletos.cancelar', $boleto) }}" method="POST" class="inline-block">
+                                @csrf
+                                <button type="submit" 
+                                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center"
+                                        onclick="return confirm('Tem certeza que deseja cancelar este boleto?')">
+                                    <i class="fas fa-times-circle mr-2"></i> Cancelar Boleto
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-@endsection
+</x-app-layout>

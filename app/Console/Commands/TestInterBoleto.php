@@ -2,54 +2,106 @@
 
 namespace App\Console\Commands;
 
-use App\Services\InterService;
 use Illuminate\Console\Command;
-use Exception;
+use App\Services\InterBoletoService;
+use App\Services\InterTokenService;
+use Illuminate\Support\Facades\Log;
 
 class TestInterBoleto extends Command
 {
     protected $signature = 'inter:test-boleto';
-    protected $description = 'Testa a integração com o Banco Inter';
+    protected $description = 'Testa a integração com o Banco Inter para geração de boletos';
 
-    private $interService;
+    protected $boletoService;
 
-    public function __construct(InterService $interService)
+    public function __construct(InterBoletoService $boletoService)
     {
         parent::__construct();
-        $this->interService = $interService;
+        $this->boletoService = $boletoService;
+    }
+
+    protected function displayError($result)
+    {
+        $this->error($result['message']);
+
+        if (isset($result['status'])) {
+            $this->line('Status: ' . $result['status']);
+        }
+
+        if (isset($result['errors']) && is_array($result['errors'])) {
+            $this->line('Detalhes do erro:');
+            foreach ($result['errors'] as $key => $value) {
+                if (is_array($value)) {
+                    $this->line("- {$key}: " . json_encode($value, JSON_PRETTY_PRINT));
+                } else {
+                    $this->line("- {$key}: {$value}");
+                }
+            }
+        }
     }
 
     public function handle()
     {
-        $this->info('Iniciando teste de integração com o Banco Inter...');
+        $this->info('Iniciando teste de integração com Banco Inter...');
 
         try {
-            $this->info('Criando boleto...');
-            
-            $boleto = $this->interService->createBoleto([
-                'seuNumero' => '123456',
-                'valorNominal' => 100.00,
-                'dataVencimento' => '2025-03-01',
-                'numDiasAgenda' => 60,
+            $data = [
+                'seuNumero' => 'TEST' . time(),
+                'valorNominal' => '150.00',
+                'dataVencimento' => '2025-02-20',
+                'numDiasAgenda' => '60',
                 'pagador' => [
-                    'cpfCnpj' => '12345678909',
+                    'nome' => 'Diego Torino',
                     'tipoPessoa' => 'FISICA',
-                    'nome' => 'Nome do Pagador',
-                    'endereco' => 'Rua Teste, 123',
-                    'cidade' => 'São Paulo',
-                    'uf' => 'SP',
-                    'cep' => '01234567'
+                    'cpfCnpj' => '45762299821',
+                    'email' => 'diegodelima319@gmail.com',
+                    'endereco' => [
+                        'cep' => '04657000',
+                        'logradouro' => 'Av Yervant kissajikian',
+                        'numero' => '299',
+                        'complemento' => 'bloco c apto 56',
+                        'bairro' => 'Vila Constança',
+                        'cidade' => 'São Paulo',
+                        'uf' => 'SP'
+                    ]
                 ]
-            ]);
+            ];
+
+            $this->info('Criando boleto...');
+            $result = $this->boletoService->createBoleto($data);
+
+            if (!$result['success']) {
+                $this->displayError($result);
+                return 1;
+            }
 
             $this->info('Boleto criado com sucesso!');
-            $this->info('Nosso número: ' . $boleto['nossoNumero']);
+            $this->info('Detalhes do boleto:');
+            $this->table(['Campo', 'Valor'], collect($result['data'])->map(function ($value, $key) {
+                return [$key, is_array($value) ? json_encode($value) : $value];
+            })->toArray());
 
-        } catch (Exception $e) {
-            $this->error('Erro ao testar integração: ' . $e->getMessage());
+            $codigoSolicitacao = $result['data']['codigoSolicitacao'];
+            $this->info('Obtendo PDF do boleto...');
+            
+            $pdfResult = $this->boletoService->getBoletoDetails($codigoSolicitacao);
+
+            if (!$pdfResult['success']) {
+                $this->displayError($pdfResult);
+                return 1;
+            }
+
+            $this->info('PDF gerado com sucesso em: ' . $pdfResult['data']['pdf_path']);
+
+            return 0;
+
+        } catch (\Exception $e) {
+            $this->error('Erro durante o teste: ' . $e->getMessage());
+            Log::error('Erro durante o teste de boleto:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return 1;
         }
-
-        return 0;
     }
 }

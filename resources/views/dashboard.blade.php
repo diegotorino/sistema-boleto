@@ -56,10 +56,11 @@
                     </h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-border-color">
-                            <thead class="bg-gray-50 dark:bg-secondary-dark">
+                            <thead class="bg-gray-50 dark:bg-primary-dark">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CPF/CNPJ</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Valor</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vencimento</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
@@ -67,54 +68,101 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-secondary-dark divide-y divide-gray-200 dark:divide-border-color">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">João Silva</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">123.456.789-00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">R$ 1.500,00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">15/02/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            PENDENTE
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-accent-color hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Maria Santos</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">987.654.321-00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">R$ 2.750,00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">20/02/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            PAGO
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-accent-color hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Carlos Oliveira</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">456.789.123-00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">R$ 3.200,00</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">25/02/2025</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            PENDENTE
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="#" class="text-accent-color hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                @forelse($ultimosBoletos as $boleto)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-border-color transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                            {{ $boleto->id }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                            {{ $boleto->pagador_nome }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                            {{ $boleto->pagador_cpf_cnpj }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                            R$ {{ number_format($boleto->valor_nominal, 2, ',', '.') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                            {{ \Carbon\Carbon::parse($boleto->data_vencimento)->format('d/m/Y') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @switch($boleto->status)
+                                                @case('EMITIDO')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        Pendente
+                                                    </span>
+                                                    @break
+                                                @case('PAGO')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        Pago
+                                                    </span>
+                                                    @break
+                                                @case('CANCELADO')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        Cancelado
+                                                    </span>
+                                                    @break
+                                                @default
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        {{ $boleto->status }}
+                                                    </span>
+                                            @endswitch
+                                        </td>
+                                        <td class="py-4 px-6 text-center">
+                                            <div class="flex justify-center items-center space-x-3">
+                                                <!-- Visualizar informações -->
+                                                <a href="{{ route('boletos.show', $boleto) }}" 
+                                                   class="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                                                   title="Visualizar Informações">
+                                                    <i class="fas fa-eye text-lg"></i>
+                                                </a>
+
+                                                <!-- PDF -->
+                                                @if($boleto->pdf_path)
+                                                    <a href="{{ route('boletos.pdf', $boleto) }}" 
+                                                       target="_blank" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                                                       title="Visualizar PDF">
+                                                        <i class="fas fa-file-pdf text-lg"></i>
+                                                    </a>
+                                                @endif
+
+                                                <!-- Pagar -->
+                                                @if($boleto->status === 'EMITIDO')
+                                                    <form action="{{ route('boletos.pagar', $boleto) }}" 
+                                                          method="POST" 
+                                                          class="inline-block">
+                                                        @csrf
+                                                        <button type="submit" 
+                                                                class="text-green-600 hover:text-green-900 transition-colors duration-200"
+                                                                title="Simular Pagamento">
+                                                            <i class="fas fa-money-bill-wave text-lg"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Cancelar -->
+                                                    <form action="{{ route('boletos.cancelar', $boleto) }}" 
+                                                          method="POST" 
+                                                          class="inline-block"
+                                                          onsubmit="return confirm('Tem certeza que deseja cancelar este boleto?');">
+                                                        @csrf
+                                                        <button type="submit" 
+                                                                class="text-red-600 hover:text-red-900 transition-colors duration-200"
+                                                                title="Cancelar Boleto">
+                                                            <i class="fas fa-times-circle text-lg"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="py-4 px-6 text-center text-gray-500">
+                                            Nenhum boleto encontrado
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

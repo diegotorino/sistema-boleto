@@ -31,8 +31,12 @@ return [
     ],
 
     'inter' => [
-        'base_url' => env('INTER_API_URL', 'https://cdpj.partners.bancointer.com.br'),
+        'base_url' => env('INTER_API_URL', 'https://cdpj-sandbox.partners.uatinter.co'),
+        'oauth_url' => env('INTER_OAUTH_URL', 'https://cdpj-sandbox.partners.uatinter.co/oauth/v2/token'),
         'client_id' => env('INTER_CLIENT_ID'),
         'client_secret' => env('INTER_CLIENT_SECRET'),
+        'cert_path' => env('INTER_CERT_PATH'),
+        'key_path' => env('INTER_KEY_PATH'),
+        'conta_corrente' => env('INTER_CONTA_CORRENTE')
     ],
 ];

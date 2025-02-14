@@ -28,6 +28,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/boletos', [BoletoController::class, 'index'])->name('boletos.index');
+    Route::get('/boletos/create', [BoletoController::class, 'create'])->name('boletos.create');
+    Route::post('/boletos', [BoletoController::class, 'store'])->name('boletos.store');
+    Route::get('/boletos/{boleto}', [BoletoController::class, 'show'])->name('boletos.show');
+    Route::post('/boletos/{boleto}/pagar', [BoletoController::class, 'pagar'])->name('boletos.pagar');
+    Route::post('/boletos/{boleto}/cancelar', [BoletoController::class, 'cancelar'])->name('boletos.cancelar');
+    Route::get('/boletos/{boleto}/pdf', [BoletoController::class, 'pdf'])->name('boletos.pdf');
+
     Route::resource('clientes', ClienteController::class);
     Route::resource('boletos', BoletoController::class);
 });

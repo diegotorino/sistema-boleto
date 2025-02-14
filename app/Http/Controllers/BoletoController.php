@@ -3,90 +3,194 @@
 namespace App\Http\Controllers;
 
 use App\Models\Boleto;
-use App\Models\Cliente;
+use App\Services\InterBoletoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class BoletoController extends Controller
 {
-    public function index(Request $request)
+    protected $boletoService;
+
+    public function __construct(InterBoletoService $boletoService)
     {
-        $query = Boleto::with('cliente');
+        $this->boletoService = $boletoService;
 
-        // Filtro por cliente
-        if ($request->filled('cliente')) {
-            $query->whereHas('cliente', function ($q) use ($request) {
-                $q->where('nome', 'like', '%' . $request->cliente . '%')
-                  ->orWhere('cpf_cnpj', 'like', '%' . $request->cliente . '%');
-            });
+        // Garante que o diretório de boletos existe
+        if (!Storage::disk('public')->exists('boletos')) {
+            Storage::disk('public')->makeDirectory('boletos');
         }
+    }
 
-        // Filtro por status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filtro por data
-        if ($request->filled('data_inicio')) {
-            $query->where('vencimento', '>=', $request->data_inicio);
-        }
-        if ($request->filled('data_fim')) {
-            $query->where('vencimento', '<=', $request->data_fim);
-        }
-
-        $boletos = $query->orderBy('created_at', 'desc')->paginate(10);
+    public function index()
+    {
+        $boletos = Boleto::latest()->paginate(10);
         return view('boletos.index', compact('boletos'));
     }
 
     public function create()
     {
-        $clientes = Cliente::orderBy('nome')->get();
-        return view('boletos.create', compact('clientes'));
+        return view('boletos.create');
     }
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'seuNumero' => 'required|string|max:255',
+            'valorNominal' => 'required|numeric|min:0.01',
+            'dataVencimento' => 'required|date|after:today',
+            'numDiasAgenda' => 'required|integer|min:1',
+            'pagador.nome' => 'required|string|max:255',
+            'pagador.tipoPessoa' => 'required|in:FISICA,JURIDICA',
+            'pagador.cpfCnpj' => 'required|string',
+            'pagador.email' => 'nullable|email',
+            'pagador.endereco.cep' => 'required|string',
+            'pagador.endereco.logradouro' => 'required|string',
+            'pagador.endereco.numero' => 'required|string',
+            'pagador.endereco.complemento' => 'nullable|string',
+            'pagador.endereco.bairro' => 'required|string',
+            'pagador.endereco.cidade' => 'required|string',
+            'pagador.endereco.uf' => 'required|string|size:2'
+        ]);
+
         try {
-            $request->validate([
-                'cliente_id' => 'required|exists:clientes,id',
-                'valor' => 'required|numeric|min:0',
-                'vencimento' => 'required|date|after:today',
-                'descricao' => 'nullable|string'
+            Log::info('Dados recebidos para criação de boleto', $validated);
+
+            // Criar boleto no Inter
+            $response = $this->boletoService->createBoleto([
+                'seuNumero' => $validated['seuNumero'],
+                'valorNominal' => $validated['valorNominal'],
+                'dataVencimento' => $validated['dataVencimento'],
+                'numDiasAgenda' => $validated['numDiasAgenda'],
+                'pagador' => $validated['pagador']
             ]);
 
-            // Salva o boleto no banco de dados
-            $boleto = Boleto::create([
-                'cliente_id' => $request->cliente_id,
-                'valor' => $request->valor,
-                'vencimento' => $request->vencimento,
-                'descricao' => $request->descricao,
-                'status' => 'pendente',
-                // Campos temporários até integração com o Inter
-                'nosso_numero' => 'TEMP-' . Str::random(10),
-                'linha_digitavel' => 'Aguardando integração com o banco',
-                'codigo_barras' => 'Aguardando integração com o banco'
-            ]);
+            Log::info('Resposta do serviço de criação de boleto', ['response' => $response]);
 
-            if (!$boleto) {
-                throw new Exception('Não foi possível salvar o boleto.');
+            if (!$response['success']) {
+                Log::error('Erro ao criar boleto no Inter', ['error' => $response['message']]);
+                return back()->with('error', $response['message']);
             }
 
-            return redirect()
-                ->route('boletos.index')
-                ->with('success', 'Boleto cadastrado com sucesso! A integração com o banco será implementada em breve.');
+            // Salvar no banco de dados
+            $boleto = Boleto::create([
+                'seu_numero' => $validated['seuNumero'],
+                'valor_nominal' => $validated['valorNominal'],
+                'data_vencimento' => $validated['dataVencimento'],
+                'num_dias_agenda' => $validated['numDiasAgenda'],
+                'pagador_nome' => $validated['pagador']['nome'],
+                'pagador_tipo' => $validated['pagador']['tipoPessoa'],
+                'pagador_cpf_cnpj' => $validated['pagador']['cpfCnpj'],
+                'pagador_email' => $validated['pagador']['email'],
+                'pagador_endereco' => $validated['pagador']['endereco']['logradouro'],
+                'pagador_numero' => $validated['pagador']['endereco']['numero'],
+                'pagador_complemento' => $validated['pagador']['endereco']['complemento'],
+                'pagador_bairro' => $validated['pagador']['endereco']['bairro'],
+                'pagador_cidade' => $validated['pagador']['endereco']['cidade'],
+                'pagador_uf' => $validated['pagador']['endereco']['uf'],
+                'pagador_cep' => $validated['pagador']['endereco']['cep'],
+                'codigo_solicitacao' => $response['data']['codigoSolicitacao'],
+                'status' => 'EMITIDO'
+            ]);
 
-        } catch (Exception $e) {
-            Log::error('Erro ao cadastrar boleto: ' . $e->getMessage());
-            return back()
-                ->withInput()
-                ->with('error', 'Erro ao cadastrar boleto: ' . $e->getMessage());
+            Log::info('Boleto salvo no banco de dados', ['boleto' => $boleto->toArray()]);
+
+            // Baixar PDF
+            $pdf = $this->boletoService->getBoletoDetails($response['data']['codigoSolicitacao']);
+            Log::info('Resposta do serviço de PDF', ['pdf' => $pdf]);
+            
+            if ($pdf['success']) {
+                $boleto->update(['pdf_path' => $pdf['data']['pdf_path']]);
+                Log::info('PDF atualizado no banco', ['pdf_path' => $pdf['data']['pdf_path']]);
+            } else {
+                Log::error('Erro ao obter PDF', ['error' => $pdf['message']]);
+            }
+
+            return redirect()->route('boletos.index')
+                        ->with('success', 'Boleto gerado com sucesso!')
+                        ->with('boleto', [
+                            'codigoSolicitacao' => $response['data']['codigoSolicitacao'],
+                            'pdf_path' => $pdf['success'] ? $pdf['data']['pdf_path'] : null
+                        ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao gerar boleto', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $validated
+            ]);
+
+            return back()->with('error', 'Erro ao gerar boleto: ' . $e->getMessage())
+                        ->withInput();
         }
     }
 
     public function show(Boleto $boleto)
     {
         return view('boletos.show', compact('boleto'));
+    }
+
+    public function pagar(Boleto $boleto)
+    {
+        try {
+            $response = $this->boletoService->pagarBoleto($boleto->codigo_solicitacao);
+
+            if (!$response['success']) {
+                return back()->with('error', $response['message']);
+            }
+
+            $boleto->update(['status' => 'PAGO']);
+
+            return back()->with('success', 'Pagamento simulado com sucesso!');
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao simular pagamento', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'boleto_id' => $boleto->id
+            ]);
+
+            return back()->with('error', 'Erro ao simular pagamento: ' . $e->getMessage());
+        }
+    }
+
+    public function cancelar(Boleto $boleto)
+    {
+        try {
+            $response = $this->boletoService->cancelarBoleto($boleto->codigo_solicitacao);
+
+            if (!$response['success']) {
+                return back()->with('error', $response['message']);
+            }
+
+            $boleto->update(['status' => 'CANCELADO']);
+
+            return back()->with('success', 'Boleto cancelado com sucesso!');
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao cancelar boleto', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'boleto_id' => $boleto->id
+            ]);
+
+            return back()->with('error', 'Erro ao cancelar boleto: ' . $e->getMessage());
+        }
+    }
+
+    public function pdf(Boleto $boleto)
+    {
+        if (!$boleto->pdf_path || !Storage::disk('public')->exists($boleto->pdf_path)) {
+            // Se o PDF não existir, tenta baixar novamente
+            $pdf = $this->boletoService->getBoletoDetails($boleto->codigo_solicitacao);
+            
+            if (!$pdf['success']) {
+                return response()->json(['error' => 'PDF não encontrado'], 404);
+            }
+
+            $boleto->update(['pdf_path' => $pdf['data']['pdf_path']]);
+        }
+
+        return response()->file(storage_path('app/public/' . $boleto->pdf_path));
     }
 }
