@@ -47,7 +47,7 @@
                                type="checkbox" 
                                class="form-checkbox rounded border-gray-300" 
                                name="remember">
-                        <span class="ms-2 text-sm text-gray-400">{{ __('Lembrar-me') }}</span>
+                        <span class="ms-2 text-sm text-gray-400">{{ __('Manter conectado') }}</span>
                     </label>
 
                     @if (Route::has('password.request'))

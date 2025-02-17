@@ -26,16 +26,16 @@
                             </div>
 
                             <div>
-                                <x-input-label for="email" value="Email" />
+                                <x-input-label for="email" value="E-mail" />
                                 <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" value="{{ request('email') }}" />
                             </div>
 
                             <div class="md:col-span-3 flex justify-end space-x-2">
                                 <button type="submit" class="btn-primary">
-                                    <i class="fas fa-search mr-2"></i> Filtrar
+                                    <i class="fas fa-search mr-2"></i> Buscar
                                 </button>
                                 <a href="{{ route('clientes.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                                    <i class="fas fa-undo mr-2"></i> Limpar
+                                    <i class="fas fa-undo mr-2"></i> Limpar Filtros
                                 </a>
                             </div>
                         </form>
@@ -56,7 +56,7 @@
                                         <i class="fas fa-user mr-2"></i>Nome
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        <i class="fas fa-envelope mr-2"></i>Email
+                                        <i class="fas fa-envelope mr-2"></i>E-mail
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         <i class="fas fa-id-card mr-2"></i>CPF/CNPJ
