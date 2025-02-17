@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Boleto;
+use App\Models\Cliente;
 use App\Services\InterBoletoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -30,12 +31,14 @@ class BoletoController extends Controller
 
     public function create()
     {
-        return view('boletos.create');
+        $clientes = Cliente::orderBy('nome')->get();
+        return view('boletos.create', compact('clientes'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'cliente_id' => 'required|exists:clientes,id',
             'seuNumero' => 'required|string|max:255',
             'valorNominal' => 'required|numeric|min:0.01',
             'dataVencimento' => 'required|date|after:today',
@@ -65,15 +68,16 @@ class BoletoController extends Controller
                 'pagador' => $validated['pagador']
             ]);
 
-            Log::info('Resposta do serviço de criação de boleto', ['response' => $response]);
-
-            if (!$response['success']) {
-                Log::error('Erro ao criar boleto no Inter', ['error' => $response['message']]);
-                return back()->with('error', $response['message']);
+            if (!isset($response['success']) || !$response['success']) {
+                Log::error('Erro ao criar boleto no Inter', ['error' => $response['message'] ?? 'Erro desconhecido']);
+                return back()
+                    ->withInput()
+                    ->with('error', 'Erro ao gerar boleto: ' . ($response['message'] ?? 'Erro desconhecido'));
             }
 
             // Salvar no banco de dados
             $boleto = Boleto::create([
+                'cliente_id' => $validated['cliente_id'],
                 'seu_numero' => $validated['seuNumero'],
                 'valor_nominal' => $validated['valorNominal'],
                 'data_vencimento' => $validated['dataVencimento'],
@@ -90,38 +94,36 @@ class BoletoController extends Controller
                 'pagador_uf' => $validated['pagador']['endereco']['uf'],
                 'pagador_cep' => $validated['pagador']['endereco']['cep'],
                 'codigo_solicitacao' => $response['data']['codigoSolicitacao'],
-                'status' => 'EMITIDO'
+                'status' => 'EMITIDO',
+                'pdf_path' => null
             ]);
 
-            Log::info('Boleto salvo no banco de dados', ['boleto' => $boleto->toArray()]);
-
-            // Baixar PDF
-            $pdf = $this->boletoService->getBoletoDetails($response['data']['codigoSolicitacao']);
-            Log::info('Resposta do serviço de PDF', ['pdf' => $pdf]);
+            // Baixar e salvar o PDF
+            $pdfResponse = $this->boletoService->getBoletoDetails($response['data']['codigoSolicitacao']);
             
-            if ($pdf['success']) {
-                $boleto->update(['pdf_path' => $pdf['data']['pdf_path']]);
-                Log::info('PDF atualizado no banco', ['pdf_path' => $pdf['data']['pdf_path']]);
+            if (isset($pdfResponse['success']) && $pdfResponse['success']) {
+                $pdfPath = 'boletos/' . $boleto->id . '.pdf';
+                $boleto->update(['pdf_path' => $pdfPath]);
             } else {
-                Log::error('Erro ao obter PDF', ['error' => $pdf['message']]);
+                Log::warning('Não foi possível baixar o PDF do boleto', [
+                    'boleto_id' => $boleto->id,
+                    'error' => $pdfResponse['message'] ?? 'Erro desconhecido'
+                ]);
             }
 
-            return redirect()->route('boletos.index')
-                        ->with('success', 'Boleto gerado com sucesso!')
-                        ->with('boleto', [
-                            'codigoSolicitacao' => $response['data']['codigoSolicitacao'],
-                            'pdf_path' => $pdf['success'] ? $pdf['data']['pdf_path'] : null
-                        ]);
+            return redirect()
+                ->route('boletos.show', $boleto)
+                ->with('success', 'Boleto gerado com sucesso!');
 
         } catch (\Exception $e) {
-            Log::error('Erro ao gerar boleto', [
+            Log::error('Erro ao processar boleto', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'data' => $validated
+                'trace' => $e->getTraceAsString()
             ]);
 
-            return back()->with('error', 'Erro ao gerar boleto: ' . $e->getMessage())
-                        ->withInput();
+            return back()
+                ->withInput()
+                ->with('error', 'Erro ao processar boleto: ' . $e->getMessage());
         }
     }
 

@@ -48,16 +48,42 @@ class ClienteController extends Controller
     {
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
-            'email' => 'required|email|unique:clientes',
-            'cpf_cnpj' => 'required|string|max:18|unique:clientes',
-            'telefone' => 'required|string|max:15',
+            'email' => 'nullable|email|unique:clientes',
+            'cpf_cnpj' => 'required|string|unique:clientes',
+            'telefone' => 'nullable|string|max:20',
+            'cep' => 'required|string|size:9',
             'endereco' => 'required|string|max:255',
+            'numero' => 'required|string|max:20',
+            'complemento' => 'nullable|string|max:100',
+            'bairro' => 'required|string|max:100',
+            'cidade' => 'required|string|max:100',
+            'uf' => 'required|string|size:2'
         ]);
 
-        Cliente::create($validated);
+        try {
+            $cliente = Cliente::create([
+                'nome' => $validated['nome'],
+                'email' => $validated['email'],
+                'cpf_cnpj' => preg_replace('/[^0-9]/', '', $validated['cpf_cnpj']),
+                'telefone' => $validated['telefone'],
+                'cep' => preg_replace('/[^0-9]/', '', $validated['cep']),
+                'endereco' => $validated['endereco'],
+                'numero' => $validated['numero'],
+                'complemento' => $validated['complemento'],
+                'bairro' => $validated['bairro'],
+                'cidade' => $validated['cidade'],
+                'uf' => strtoupper($validated['uf'])
+            ]);
 
-        return redirect()->route('clientes.index')
-            ->with('success', 'Cliente cadastrado com sucesso!');
+            return redirect()
+                ->route('clientes.index')
+                ->with('success', 'Cliente cadastrado com sucesso!');
+
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Erro ao cadastrar cliente: ' . $e->getMessage());
+        }
     }
 
     /**

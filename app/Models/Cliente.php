@@ -15,7 +15,13 @@ class Cliente extends Model
         'email',
         'cpf_cnpj',
         'telefone',
-        'endereco'
+        'endereco',
+        'numero',
+        'complemento',
+        'bairro',
+        'cidade',
+        'uf',
+        'cep'
     ];
 
     public function boletos()

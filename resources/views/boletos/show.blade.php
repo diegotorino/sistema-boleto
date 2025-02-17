@@ -11,13 +11,13 @@
                             @if($boleto->pdf_path)
                                 <a href="{{ route('boletos.pdf', $boleto) }}" 
                                    target="_blank"
-                                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                                   class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                                     <i class="fas fa-file-pdf mr-2"></i> Visualizar PDF
                                 </a>
                             @endif
                             
                             <a href="{{ route('boletos.index') }}" 
-                               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                               class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                                 <i class="fas fa-arrow-left mr-2"></i> Voltar
                             </a>
                         </div>
@@ -25,7 +25,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Informações do Boleto -->
-                        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                        <div class="bg-[#1a1a1a] p-6 rounded-lg">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                                 <i class="fas fa-info-circle mr-2"></i> Informações do Boleto
                             </h3>
@@ -72,7 +72,7 @@
                         </div>
 
                         <!-- Informações do Pagador -->
-                        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                        <div class="bg-[#1a1a1a] p-6 rounded-lg">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                                 <i class="fas fa-user mr-2"></i> Informações do Pagador
                             </h3>
@@ -97,7 +97,7 @@
                         </div>
 
                         <!-- Endereço do Pagador -->
-                        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg md:col-span-2">
+                        <div class="bg-[#1a1a1a] p-6 rounded-lg md:col-span-2">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                                 <i class="fas fa-map-marker-alt mr-2"></i> Endereço do Pagador
                             </h3>

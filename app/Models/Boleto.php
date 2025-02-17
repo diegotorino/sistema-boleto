@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Cliente;
 
 class Boleto extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'cliente_id',
         'seu_numero',
         'valor_nominal',
         'data_vencimento',
@@ -48,5 +50,10 @@ class Boleto extends Model
             $this->pagador_uf,
             $this->pagador_cep
         );
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 }

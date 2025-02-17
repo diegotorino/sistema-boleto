@@ -14,14 +14,15 @@ return new class extends Migration
             $table->string('cpf_cnpj')->unique();
             $table->string('email')->nullable();
             $table->string('telefone')->nullable();
-            $table->string('endereco')->nullable();
-            $table->string('numero')->nullable();
+            $table->string('endereco');
+            $table->string('numero');
             $table->string('complemento')->nullable();
-            $table->string('bairro')->nullable();
-            $table->string('cidade')->nullable();
-            $table->string('uf', 2)->nullable();
-            $table->string('cep')->nullable();
+            $table->string('bairro');
+            $table->string('cidade');
+            $table->string('uf', 2);
+            $table->string('cep');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
