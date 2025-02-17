@@ -13,13 +13,63 @@
     <!-- Styles -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/1c82e6ee7d.js" crossorigin="anonymous"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/dark-theme.css'])
+    @livewireStyles
+
+    <style>
+        /* Estilos globais para o SweetAlert2 */
+        .swal2-popup {
+            background: #1a1a1a !important;
+        }
+        .swal2-html-container {
+            color: white !important;
+        }
+        .swal2-input, 
+        .swal2-file, 
+        .swal2-textarea, 
+        .swal2-select, 
+        .swal2-radio, 
+        .swal2-checkbox,
+        .swal2-range input,
+        .swal2-range output {
+            background-color: #1a1a1a !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .swal2-input:focus,
+        .swal2-file:focus,
+        .swal2-textarea:focus,
+        .swal2-select:focus,
+        .swal2-radio:focus,
+        .swal2-checkbox:focus {
+            box-shadow: none !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        .swal2-input::placeholder,
+        .swal2-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+        .swal2-input:hover,
+        .swal2-file:hover,
+        .swal2-textarea:hover,
+        .swal2-select:hover,
+        .swal2-radio:hover,
+        .swal2-checkbox:hover {
+            background-color: #242424 !important;
+        }
+        .swal2-validation-message {
+            background: #242424 !important;
+            color: white !important;
+        }
+    </style>
 </head>
 <body class="font-sans antialiased bg-black text-white">
     <div x-data="{ open: false, sidebarOpen: true }" class="min-h-screen">
-        <!-- Sidebar -->
         <div x-show="open" class="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden" 
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"
@@ -60,6 +110,15 @@
                         <i class="fas fa-chart-line text-xl" :class="{ 'mr-2': sidebarOpen }"></i>
                         <span x-show="sidebarOpen" x-transition>Dashboard</span>
                     </a>
+
+                    <a href="{{ route('tasks.index') }}" 
+                       class="flex items-center px-4 py-2 rounded-lg mb-1 transition-all duration-200 hover:transform hover:translate-x-1 {{ request()->routeIs('tasks.*') ? 'bg-accent-color text-white' : 'dark:text-white' }}"
+                       :class="{ 'justify-center': !sidebarOpen }"
+                       data-tippy-content="Tarefas">
+                        <i class="fas fa-tasks text-xl" :class="{ 'mr-2': sidebarOpen }"></i>
+                        <span x-show="sidebarOpen" x-transition>Tarefas</span>
+                    </a>
+
                     <a href="{{ route('boletos.index') }}" 
                        class="flex items-center px-4 py-2 rounded-lg mb-1 transition-all duration-200 hover:transform hover:translate-x-1 {{ request()->routeIs('boletos.index') ? 'bg-accent-color text-white' : 'dark:text-white' }}"
                        :class="{ 'justify-center': !sidebarOpen }"
@@ -67,6 +126,7 @@
                         <i class="fas fa-file-invoice-dollar text-xl" :class="{ 'mr-2': sidebarOpen }"></i>
                         <span x-show="sidebarOpen" x-transition>Boletos</span>
                     </a>
+
                     <a href="{{ route('boletos.create') }}" 
                        class="flex items-center px-4 py-2 rounded-lg mb-1 transition-all duration-200 hover:transform hover:translate-x-1 {{ request()->routeIs('boletos.create') ? 'bg-accent-color text-white' : 'dark:text-white' }}"
                        :class="{ 'justify-center': !sidebarOpen }"
@@ -74,6 +134,7 @@
                         <i class="fas fa-plus-circle text-xl" :class="{ 'mr-2': sidebarOpen }"></i>
                         <span x-show="sidebarOpen" x-transition>Novo Boleto</span>
                     </a>
+
                     <a href="{{ route('clientes.index') }}" 
                        class="flex items-center px-4 py-2 rounded-lg mb-1 transition-all duration-200 hover:transform hover:translate-x-1 {{ request()->routeIs('clientes.*') ? 'bg-accent-color text-white' : 'dark:text-white' }}"
                        :class="{ 'justify-center': !sidebarOpen }"
@@ -81,6 +142,7 @@
                         <i class="fas fa-users text-xl" :class="{ 'mr-2': sidebarOpen }"></i>
                         <span x-show="sidebarOpen" x-transition>Clientes</span>
                     </a>
+
                     <a href="{{ route('profile.edit') }}" 
                        class="flex items-center px-4 py-2 rounded-lg mb-1 transition-all duration-200 hover:transform hover:translate-x-1 {{ request()->routeIs('profile.edit') ? 'bg-accent-color text-white' : 'dark:text-white' }}"
                        :class="{ 'justify-center': !sidebarOpen }"
@@ -88,6 +150,7 @@
                         <i class="fas fa-user-circle text-xl" :class="{ 'mr-2': sidebarOpen }"></i>
                         <span x-show="sidebarOpen" x-transition>Perfil</span>
                     </a>
+
                     <form method="POST" action="{{ route('logout') }}" class="mt-2">
                         @csrf
                         <button type="submit" 
@@ -160,5 +223,6 @@
     </div>
 
     @stack('scripts')
+    @livewireScripts
 </body>
 </html>

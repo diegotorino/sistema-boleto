@@ -75,7 +75,7 @@
 
                             <div class="col-md-3">
                                 <x-input-label for="numDiasAgenda" :value="__('Dias para Agendar')" />
-                                <x-text-input id="numDiasAgenda" class="block mt-1 w-full" type="number" name="numDiasAgenda" :value="old('numDiasAgenda', 0)" required min="0" />
+                                <x-text-input id="numDiasAgenda" class="block mt-1 w-full" type="number" name="numDiasAgenda" :value="old('numDiasAgenda', 1)" required min="1" />
                                 <x-input-error :messages="$errors->get('numDiasAgenda')" class="mt-2" />
                             </div>
                         </div>
@@ -167,7 +167,6 @@
             document.querySelector('#pagador\\[nome\\]').value = cliente.nome;
             document.querySelector('#pagador\\[cpfCnpj\\]').value = cliente.cpf_cnpj;
             document.querySelector('#pagador\\[email\\]').value = cliente.email || '';
-            document.querySelector('#pagador\\[telefone\\]').value = cliente.telefone || '';
             
             if (cliente.endereco) {
                 document.querySelector('#pagador\\[endereco\\]\\[cep\\]').value = cliente.endereco.cep;
