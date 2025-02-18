@@ -35,6 +35,14 @@ class BoletoController extends Controller
         return view('boletos.create', compact('clientes'));
     }
 
+    /**
+     * Exibe os detalhes de um boleto específico
+     */
+    public function show(Boleto $boleto)
+    {
+        return view('boletos.show', compact('boleto'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -127,11 +135,6 @@ class BoletoController extends Controller
         }
     }
 
-    public function show(Boleto $boleto)
-    {
-        return view('boletos.show', compact('boleto'));
-    }
-
     public function pagar(Boleto $boleto)
     {
         try {
@@ -180,19 +183,22 @@ class BoletoController extends Controller
         }
     }
 
+    public function destroy(Boleto $boleto)
+    {
+        $boleto->delete();
+        return redirect()->route('boletos.index')->with('success', 'Boleto excluído com sucesso!');
+    }
+
+    /**
+     * Visualiza o PDF do boleto
+     */
     public function pdf(Boleto $boleto)
     {
         if (!$boleto->pdf_path || !Storage::disk('public')->exists($boleto->pdf_path)) {
-            // Se o PDF não existir, tenta baixar novamente
-            $pdf = $this->boletoService->getBoletoDetails($boleto->codigo_solicitacao);
-            
-            if (!$pdf['success']) {
-                return response()->json(['error' => 'PDF não encontrado'], 404);
-            }
-
-            $boleto->update(['pdf_path' => $pdf['data']['pdf_path']]);
+            return back()->with('error', 'PDF do boleto não encontrado.');
         }
 
-        return response()->file(storage_path('app/public/' . $boleto->pdf_path));
+        return response()->file(Storage::disk('public')->path($boleto->pdf_path));
     }
+
 }

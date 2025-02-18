@@ -20,7 +20,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('clientes', ClienteController::class);
-    Route::resource('boletos', BoletoController::class);
+Route::resource('boletos', BoletoController::class);
+Route::get('boletos/{boleto}/pdf', [BoletoController::class, 'pdf'])->name('boletos.pdf');
+Route::post('boletos/{boleto}/pagar', [BoletoController::class, 'pagar'])->name('boletos.pagar');
+Route::post('boletos/{boleto}/cancelar', [BoletoController::class, 'cancelar'])->name('boletos.cancelar');
+
 
     // Rotas para o sistema de tarefas
     Route::get('/tasks', [TaskBoardController::class, 'index'])->name('tasks.index');

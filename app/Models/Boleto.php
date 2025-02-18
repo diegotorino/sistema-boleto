@@ -29,12 +29,14 @@ class Boleto extends Model
         'pagador_cep',
         'codigo_solicitacao',
         'status',
-        'pdf_path'
+        'pdf_path',
+        'data_pagamento'
     ];
 
     protected $casts = [
         'valor_nominal' => 'decimal:2',
         'data_vencimento' => 'date',
+        'data_pagamento' => 'datetime',
         'num_dias_agenda' => 'integer'
     ];
 

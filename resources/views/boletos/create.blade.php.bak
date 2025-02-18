@@ -26,7 +26,6 @@
                     <form method="POST" action="{{ route('boletos.store') }}" class="space-y-6">
                         @csrf
 
-                        <!-- Seleção de Cliente -->
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <x-input-label for="cliente_id" :value="__('Selecione um Cliente')" />
@@ -37,7 +36,6 @@
                                             'nome' => $cliente->nome,
                                             'cpf_cnpj' => $cliente->cpf_cnpj,
                                             'email' => $cliente->email,
-                                            'telefone' => $cliente->telefone,
                                             'endereco' => [
                                                 'logradouro' => $cliente->endereco,
                                                 'numero' => $cliente->numero,
@@ -56,7 +54,6 @@
                             </div>
                         </div>
 
-                        <!-- Dados do Boleto -->
                         <div class="row mb-4">
                             <div class="col-md-3">
                                 <x-input-label for="seuNumero" :value="__('Número do Boleto')" />
@@ -102,97 +99,6 @@
                             </div>
                         </div>
 
-                        <!-- Dados do Pagador -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Dados do Pagador</h3>
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <x-input-label for="pagador[nome]" :value="__('Nome do Pagador')" />
-                                    <x-text-input id="pagador[nome]" class="block mt-1 w-full" type="text" name="pagador[nome]" :value="old('pagador.nome')" required />
-                                    <x-input-error :messages="$errors->get('pagador.nome')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-3">
-                                    <x-input-label for="pagador[tipoPessoa]" :value="__('Tipo de Pessoa')" />
-                                    <select id="pagador[tipoPessoa]" name="pagador[tipoPessoa]" class="form-select block mt-1 w-full" required>
-                                        <option value="FISICA">Pessoa Física</option>
-                                        <option value="JURIDICA">Pessoa Jurídica</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('pagador.tipoPessoa')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-3">
-                                    <x-input-label for="pagador[cpfCnpj]" :value="__('CPF/CNPJ')" />
-                                    <x-text-input id="pagador[cpfCnpj]" class="block mt-1 w-full" type="text" name="pagador[cpfCnpj]" :value="old('pagador.cpfCnpj')" required />
-                                    <x-input-error :messages="$errors->get('pagador.cpfCnpj')" class="mt-2" />
-                                </div>
-                            </div>
-
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <x-input-label for="pagador[email]" :value="__('E-mail')" />
-                                    <x-text-input id="pagador[email]" class="block mt-1 w-full" type="email" name="pagador[email]" :value="old('pagador.email')" />
-                                    <x-input-error :messages="$errors->get('pagador.email')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-6">
-                                    <x-input-label for="pagador[telefone]" :value="__('Telefone')" />
-                                    <x-text-input id="pagador[telefone]" class="block mt-1 w-full" type="text" name="pagador[telefone]" :value="old('pagador.telefone')" />
-                                    <x-input-error :messages="$errors->get('pagador.telefone')" class="mt-2" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Endereço do Pagador -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Endereço do Pagador</h3>
-                            <div class="row mb-4">
-                                <div class="col-md-3">
-                                    <x-input-label for="pagador[endereco][cep]" :value="__('CEP')" />
-                                    <x-text-input id="pagador[endereco][cep]" class="block mt-1 w-full" type="text" name="pagador[endereco][cep]" :value="old('pagador.endereco.cep')" required />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.cep')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-7">
-                                    <x-input-label for="pagador[endereco][logradouro]" :value="__('Logradouro')" />
-                                    <x-text-input id="pagador[endereco][logradouro]" class="block mt-1 w-full" type="text" name="pagador[endereco][logradouro]" :value="old('pagador.endereco.logradouro')" required />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.logradouro')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-2">
-                                    <x-input-label for="pagador[endereco][numero]" :value="__('Número')" />
-                                    <x-text-input id="pagador[endereco][numero]" class="block mt-1 w-full" type="text" name="pagador[endereco][numero]" :value="old('pagador.endereco.numero')" required />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.numero')" class="mt-2" />
-                                </div>
-                            </div>
-
-                            <div class="row mb-4">
-                                <div class="col-md-4">
-                                    <x-input-label for="pagador[endereco][complemento]" :value="__('Complemento')" />
-                                    <x-text-input id="pagador[endereco][complemento]" class="block mt-1 w-full" type="text" name="pagador[endereco][complemento]" :value="old('pagador.endereco.complemento')" />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.complemento')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-4">
-                                    <x-input-label for="pagador[endereco][bairro]" :value="__('Bairro')" />
-                                    <x-text-input id="pagador[endereco][bairro]" class="block mt-1 w-full" type="text" name="pagador[endereco][bairro]" :value="old('pagador.endereco.bairro')" required />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.bairro')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-3">
-                                    <x-input-label for="pagador[endereco][cidade]" :value="__('Cidade')" />
-                                    <x-text-input id="pagador[endereco][cidade]" class="block mt-1 w-full" type="text" name="pagador[endereco][cidade]" :value="old('pagador.endereco.cidade')" required />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.cidade')" class="mt-2" />
-                                </div>
-
-                                <div class="col-md-1">
-                                    <x-input-label for="pagador[endereco][uf]" :value="__('UF')" />
-                                    <x-text-input id="pagador[endereco][uf]" class="block mt-1 w-full" type="text" name="pagador[endereco][uf]" :value="old('pagador.endereco.uf')" required maxlength="2" style="text-transform: uppercase;" />
-                                    <x-input-error :messages="$errors->get('pagador.endereco.uf')" class="mt-2" />
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="flex items-center justify-end mt-4">
                             <a href="{{ route('boletos.index') }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mr-4">
                                 Cancelar
@@ -223,30 +129,38 @@
                 }
             });
 
-            IMask(document.querySelector('#pagador\\[telefone\\]'), {
-                mask: [
-                    { mask: '(00) 0000-0000' },
-                    { mask: '(00) 00000-0000' }
-                ],
-                dispatch: function (appended, dynamicMasked) {
-                    const number = (dynamicMasked.value + appended).replace(/\D/g,'');
-                    return number.length <= 10 ? dynamicMasked.compiledMasks[0] : dynamicMasked.compiledMasks[1];
-                }
-            });
+            const telefoneInput = document.querySelector('#pagador\\[telefone\\]');
+            if (telefoneInput) {
+                IMask(telefoneInput, {
+                    mask: [
+                        { mask: '(00) 0000-0000' },
+                        { mask: '(00) 00000-0000' }
+                    ],
+                    dispatch: function (appended, dynamicMasked) {
+                        const number = (dynamicMasked.value + appended).replace(/\D/g,'');
+                        return number.length <= 10 ? dynamicMasked.compiledMasks[0] : dynamicMasked.compiledMasks[1];
+                    }
+                });
+            }
 
-            IMask(document.querySelector('#pagador\\[endereco\\]\\[cep\\]'), {
-                mask: '00000-000'
-            });
+            const cepInput = document.querySelector('#pagador\\[endereco\\]\\[cep\\]');
+            if (cepInput) {
+                IMask(cepInput, {
+                    mask: '00000-000'
+                });
+            }
 
             // Cliente selecionado
             const clienteSelect = document.querySelector('#cliente_id');
-            clienteSelect.addEventListener('change', function() {
-                const option = this.options[this.selectedIndex];
-                if (option && option.dataset.cliente) {
-                    const cliente = JSON.parse(option.dataset.cliente);
-                    preencherDadosCliente(cliente);
-                }
-            });
+            if (clienteSelect) {
+                clienteSelect.addEventListener('change', function() {
+                    const option = this.options[this.selectedIndex];
+                    if (option && option.dataset.cliente) {
+                        const cliente = JSON.parse(option.dataset.cliente);
+                        preencherDadosCliente(cliente);
+                    }
+                });
+            }
         });
 
         function preencherDadosCliente(cliente) {
@@ -271,31 +185,24 @@
         }
 
         function calcularTotal() {
-            const valor = parseFloat(document.getElementById('valorNominal').value) || 0;
-            const multa = parseFloat(document.getElementById('multa').value) || 0;
-            const juros = parseFloat(document.getElementById('juros').value) || 0;
-            const dataVencimento = new Date(document.getElementById('dataVencimento').value);
+            const valor = parseFloat(document.querySelector('#valorNominal').value) || 0;
+            const dataVencimento = new Date(document.querySelector('#dataVencimento').value);
             const hoje = new Date();
-
-            let total = valor;
             
-            if (dataVencimento < hoje) {
-                // Adiciona multa
-                total += (valor * (multa / 100));
-                
-                // Calcula dias de atraso
-                const diffTime = Math.abs(hoje - dataVencimento);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                // Adiciona juros (proporcional aos dias de atraso)
-                const jurosDiario = (juros / 30) / 100;
-                total += (valor * jurosDiario * diffDays);
+            if (isNaN(valor) || !dataVencimento || dataVencimento >= hoje) {
+                document.querySelector('#total').value = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                return;
             }
 
-            document.getElementById('total').value = total.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            });
+            const multa = parseFloat(document.querySelector('#multa').value) || 0;
+            const juros = parseFloat(document.querySelector('#juros').value) || 0;
+            
+            const diasAtraso = Math.floor((hoje - dataVencimento) / (1000 * 60 * 60 * 24));
+            const valorMulta = valor * (multa / 100);
+            const valorJuros = valor * ((juros / 30) / 100) * diasAtraso;
+            
+            const total = valor + valorMulta + valorJuros;
+            document.querySelector('#total').value = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
     </script>
     @endpush
